@@ -11,12 +11,11 @@ public class Controller {
         this.view = view;
         this.model = model;
 
-        // Initialize action listeners
         initializeListeners();
     }
 
     private void initializeListeners() {
-        // Add action listener to login button
+        //action listener to login button
         view.getLoginButton().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -36,7 +35,9 @@ public class Controller {
                             break;
                         case "MEMBER":
                             JOptionPane.showMessageDialog(view, "You are a member!");
-                            new UserView();
+                            //closes and disposes of initial login view
+                            view.close();
+                            new MemberView();
                             break;
                         default:
                             JOptionPane.showMessageDialog(view, "Cannot process role or invalid role");
