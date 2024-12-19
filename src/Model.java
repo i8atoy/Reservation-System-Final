@@ -3,12 +3,11 @@ import java.sql.*;
 public class Model {
     private static Connection connection;
 
-    // Constructor to establish database connection
+
     public Model() {
         connectToDatabase();
     }
 
-    // Method to connect to PostgreSQL database
     private void connectToDatabase() {
         try {
             String url = "jdbc:postgresql://localhost:5432/ReservationSystem";
@@ -34,10 +33,9 @@ public class Model {
 
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                // Retrieve the stored hashed password
+
                 String storedHash = rs.getString("password");
 
-                // Use your PasswordAuthentication to verify the password
                 PasswordAuthentication passwordAuth = new PasswordAuthentication();
                 return passwordAuth.authenticate(password.toCharArray(), storedHash);
             }
