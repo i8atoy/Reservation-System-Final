@@ -2,6 +2,9 @@
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-        //git test
+        View view= new View();
+        Model model = new Model();
+        new Controller(view, model);
+
     }
 }
