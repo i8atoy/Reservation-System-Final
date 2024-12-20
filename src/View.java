@@ -57,7 +57,7 @@ public class View extends JFrame {
         backgroundPanel.add(Box.createRigidArea(new Dimension(0, 20))); // Spacer
         backgroundPanel.add(login);
 
-        // Configure the frame
+
         setContentPane(backgroundPanel);
         setTitle("Login Form with Background");
         setSize(600, 400);
@@ -78,7 +78,6 @@ public class View extends JFrame {
         return passwordField;
     }
 
-    // Custom JPanel with a background image
     static class BackgroundPanel extends JPanel {
         private Image backgroundImage;
 

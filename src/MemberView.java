@@ -8,6 +8,8 @@ public class MemberView extends JFrame {
     private JTable availableDates;
     private JButton confirmMusician;
     private JButton confirm;
+    private JButton deleteMusician;
+    private JButton seeReservation;
 
     public MemberView() {
         initializeComponents();
@@ -35,13 +37,55 @@ public class MemberView extends JFrame {
         tablesPanel.add(new JScrollPane(availableDates));
 
 
-        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+
+
+
+
         confirmMusician = new JButton("Confirm Musician");
         confirm = new JButton("Confirm Your Band and Date");
+        deleteMusician = new JButton("Delete Musician");
+        seeReservation = new JButton("See Reservations");
 
-        buttonPanel.add(confirmMusician);
-        buttonPanel.add(confirm);
 
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.weightx = 0.2;
+        gbc.insets = new Insets(0, 0, 0, 10);
+
+        confirmMusician.setBackground(Color.GREEN);
+        confirmMusician.setForeground(Color.BLACK);
+        buttonPanel.add(confirmMusician, gbc);
+
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.weightx = 0.2;
+        gbc.insets = new Insets(0, 10, 0, 0);
+
+        deleteMusician.setBackground(Color.RED);
+        deleteMusician.setForeground(Color.BLACK);
+        buttonPanel.add(deleteMusician, gbc);
+
+        gbc.gridx = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.weightx = 0.6;
+        gbc.insets = new Insets(0, 0, 0, 0);
+
+        confirm.setBackground(Color.cyan);
+        buttonPanel.add(confirm, gbc);
+
+        gbc.gridx = 3;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.weightx = 0.2;
+        gbc.insets = new Insets(0, 0, 0, 10);
+
+        seeReservation.setBackground(Color.CYAN);
+        buttonPanel.add(seeReservation, gbc);
 
         add(tablesPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
@@ -52,7 +96,7 @@ public class MemberView extends JFrame {
         setVisible(true);
     }
 
-    public JTable getFirstTable() {
+    public JTable getMusicians() {
         return musicians;
     }
 
@@ -70,5 +114,13 @@ public class MemberView extends JFrame {
 
     public JButton getConfirmBothTables() {
         return confirm;
+    }
+
+    public JButton getDeleteMusician() {
+        return deleteMusician;
+    }
+
+    public JButton getSeeReservation() {
+        return seeReservation;
     }
 }

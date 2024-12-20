@@ -1,3 +1,4 @@
+import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 
 public class Model {
@@ -39,7 +40,7 @@ public class Model {
                 PasswordAuthentication passwordAuth = new PasswordAuthentication();
                 return passwordAuth.authenticate(password.toCharArray(), storedHash);
             }
-            return false; // User not found
+            return false;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -62,4 +63,37 @@ public class Model {
             return null;
         }
     }
+
+    public DefaultTableModel getMusicians(){
+        String sql = "SELECT name, instrument, rating FROM musicians";
+        DefaultTableModel model = new DefaultTableModel();
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+
+            for (int i = 1; i <= columnCount; i++) {
+                model.addColumn(metaData.getColumnName(i));
+            }
+
+            while (rs.next()) {
+                Object[] row = new Object[columnCount];
+                for (int i = 1; i <= columnCount; i++) {
+                    row[i - 1] = rs.getObject(i);
+                }
+                model.addRow(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return model;
+    }
+
+
+
+
+
 }
