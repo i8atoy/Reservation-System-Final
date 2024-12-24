@@ -2,6 +2,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
 import java.util.*;
 
 public class Controller {
@@ -29,7 +30,7 @@ public class Controller {
                 // Verify login through model
                 if (model.verifyLogin(username, password)) {
                     JOptionPane.showMessageDialog(view, "Login Successful!");
-                    String userRole = model.getUserRole(username);
+                    String userRole = model.getUserDetails(username).getRole();
 
                     switch (userRole.toUpperCase()){
                         case "ADMIN":
@@ -61,11 +62,9 @@ public class Controller {
         });
     }
     public void loadTableData(MemberView memberView) {
-
-
         DefaultTableModel musiciansData = model.getMusicians();
         memberView.getMusicians().setModel(musiciansData);
-
+        updateAvailableDates(memberView);
     }
 
     private static void initializeMemberListeners(MemberView memberView, Band band) {
@@ -107,6 +106,7 @@ public class Controller {
             }
         });
 
+
     }
 
     private static void updateUserBandTable(MemberView memberView, Band band) {
@@ -126,4 +126,19 @@ public class Controller {
 
         memberView.getUserBand().setModel(bandModel);
     }
+
+    private static void updateAvailableDates(MemberView memberview) {
+        DefaultTableModel dateModel = new DefaultTableModel();
+        dateModel.addColumn("Date");
+        dateModel.addColumn("Available");
+        DateGenerator dateGenerator = new DateGenerator();
+        ArrayList<LocalDate> dates = dateGenerator.getDates();
+        for (LocalDate date : dates) {
+            dateModel.addRow(new Object[]{
+                    date.toString(), "Not Reserved"
+            });
+        }
+        memberview.getAvailableDates().setModel(dateModel);
+    }
+
 }

@@ -1,6 +1,7 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import javax.swing.table.TableCellRenderer;
 
 public class MemberView extends JFrame {
     private JTable musicians;
@@ -50,7 +51,6 @@ public class MemberView extends JFrame {
         confirm = new JButton("Confirm Your Band and Date");
         deleteMusician = new JButton("Delete Musician");
         seeReservation = new JButton("See Reservations");
-
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -123,4 +123,5 @@ public class MemberView extends JFrame {
     public JButton getSeeReservation() {
         return seeReservation;
     }
+
 }

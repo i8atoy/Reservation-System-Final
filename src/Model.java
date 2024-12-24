@@ -24,10 +24,9 @@ public class Model {
     }
 
     public boolean verifyLogin(String username, String password) {
-        String sql = "SELECT ua.password, u.role " +
-                "FROM users u " +
-                "JOIN user_auth ua ON u.username = ua.username " +
-                "WHERE u.username = ?";
+        String sql = "SELECT password " +
+                "FROM user_auth " +
+                "WHERE username = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, username);
@@ -47,15 +46,17 @@ public class Model {
         }
     }
 
-    public String getUserRole(String username) {
-        String sql = "SELECT role FROM users WHERE username = ?";
+    public UserDetails getUserDetails(String username) {
+        String sql = "SELECT id, role FROM users WHERE username = ?";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, username);
 
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                return rs.getString("role");
+                int id = rs.getInt("id");
+                String role = rs.getString("role");
+                return new UserDetails(id, role);
             }
             return null; // User not found
         } catch (SQLException e) {
