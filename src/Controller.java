@@ -40,7 +40,7 @@ public class Controller {
                         case "MEMBER":
                             //closes and disposes of initial login view
                             view.close();
-                            List<Musician> musicians = new ArrayList<>();
+                            ArrayList<Musician> musicians = new ArrayList<>();
                             Band band = new Band(musicians);
                             MemberView memberView = new MemberView();
                             loadTableData(memberView);
@@ -65,7 +65,6 @@ public class Controller {
         memberView.getMusicians().setModel(musiciansData);
         ArrayList<ReservationDate> reservationDates = model.initializeReservedDate();
         updateAvailableDates(memberView, reservationDates);
-
     }
 
     private void initializeMemberListeners(MemberView memberView, Band band) {
@@ -114,6 +113,7 @@ public class Controller {
 
                 if(!isBandValid){
                     JOptionPane.showMessageDialog(memberView, "Band is not valid.. Try again");
+                    return;
                 }
 
                 if (selectedRow == -1) {
@@ -127,9 +127,10 @@ public class Controller {
                 LocalDate selectedDate = LocalDate.parse(dateString);
 
                 if ("Yes".equalsIgnoreCase(availability)) {
-                    boolean succes = model.insertPendingReservations(userDetails.getId(), selectedDate);
+                    boolean succes = model.insertPendingReservations(userDetails.getId(), selectedDate, band.getMusicians(), band.getBandRating());
                     if(succes) {
                         JOptionPane.showMessageDialog(memberView, "Reservation confirmed");
+                        loadTableData(memberView);
                     }else{
                         JOptionPane.showMessageDialog(memberView, "Reservation failed");
                     }
@@ -140,6 +141,12 @@ public class Controller {
 
             }
 
+        });
+        memberView.getSeeReservation().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                SeeReservationsView seeReservationsView = new SeeReservationsView();
+                seeReservationsView.getReservationsTable().setModel(model.getReservations());
+            }
         });
 
 

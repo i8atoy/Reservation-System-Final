@@ -119,26 +119,58 @@ public class Model {
         return model;
     }
 
-    public boolean insertPendingReservations(int user_id, LocalDate pending_date){
-        String sql = "INSERT INTO pending_reservations (user_id, pending_date) values (?, ?)";
+    public boolean insertPendingReservations(int user_id, LocalDate pending_date, ArrayList<Musician> musicians, int rating) {
+        String sql = "INSERT INTO pending_reservations (user_id, pending_date, band_members, band_rating) values (?, ?, ?, ?)";
         boolean success = false;
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, user_id);
             pstmt.setDate(2, java.sql.Date.valueOf(pending_date));
+            String allMusicians = "";
+            for(Musician m : musicians){
+                allMusicians = allMusicians + m.getName() + ", ";
+            }
+            pstmt.setString(3, allMusicians);
+            pstmt.setInt(4, rating);
 
             int rowsAffected = pstmt.executeUpdate();
 
             if (rowsAffected > 0) {
                 success = true;
-            }else{
-                success = false;
             }
+
         }catch (SQLException e) {
             e.printStackTrace();
 
         }
         return success;
+    }
+    public DefaultTableModel getReservations(){
+        String sql = "SELECT username, set_date FROM users join reservations on users.id = reservations.user_id";
+        DefaultTableModel model = new DefaultTableModel();
+        try {
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+
+            for (int i = 1; i <= columnCount; i++) {
+                model.addColumn(metaData.getColumnName(i));
+            }
+
+            while (rs.next()) {
+                Object[] row = new Object[columnCount];
+                for (int i = 1; i <= columnCount; i++) {
+                    row[i - 1] = rs.getObject(i);
+                }
+                model.addRow(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return model;
     }
 
 

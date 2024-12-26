@@ -2,12 +2,12 @@ import java.util.*;
 
 
 public class Band {
-    private List<Musician> musicians;
+    private ArrayList<Musician> musicians;
     private static final int bandRatingMin = 20;
     private static final int bandNumberMax = 5;
 
 
-    public Band(List<Musician> musicians) {
+    public Band(ArrayList<Musician> musicians) {
         this.musicians = musicians;
     }
 
@@ -29,7 +29,7 @@ public class Band {
     }
 
     private static boolean isValidBandNumber(List<Musician> musicians){
-        if(musicians.size() >= bandNumberMax) return false;
+        if(musicians.size() > bandNumberMax) return false;
         return true;
     }
 
@@ -46,7 +46,7 @@ public class Band {
         musicians.remove(musician);
     }
 
-    public List<Musician> getMusicians(){
+    public ArrayList<Musician> getMusicians(){
         return musicians;
     }
 
