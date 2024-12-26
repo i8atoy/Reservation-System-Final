@@ -1,5 +1,7 @@
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class Model {
     private static Connection connection;
@@ -44,6 +46,30 @@ public class Model {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public ArrayList<ReservationDate> initializeReservedDate(){
+        String sql = "Select set_date from reservations where set_date = ? ";
+        DateGenerator dateGenerator = new DateGenerator();
+        ArrayList<LocalDate> dates = dateGenerator.getDates();
+        ArrayList<ReservationDate> reservationDates = new ArrayList<>();
+
+        for (LocalDate date : dates) {
+            boolean isReserved = false;
+            try(PreparedStatement pstmt = connection.prepareStatement(sql)){
+                pstmt.setDate(1, java.sql.Date.valueOf(date));
+
+                ResultSet rs = pstmt.executeQuery();
+                if(rs.next()){
+                    isReserved = true;
+                }
+
+                reservationDates.add(new ReservationDate(date, isReserved));
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return reservationDates;
     }
 
     public UserDetails getUserDetails(String username) {
@@ -91,6 +117,28 @@ public class Model {
             return null;
         }
         return model;
+    }
+
+    public boolean insertPendingReservations(int user_id, LocalDate pending_date){
+        String sql = "INSERT INTO pending_reservations (user_id, pending_date) values (?, ?)";
+        boolean success = false;
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, user_id);
+            pstmt.setDate(2, java.sql.Date.valueOf(pending_date));
+
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                success = true;
+            }else{
+                success = false;
+            }
+        }catch (SQLException e) {
+            e.printStackTrace();
+
+        }
+        return success;
     }
 
 

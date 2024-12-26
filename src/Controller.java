@@ -8,7 +8,7 @@ import java.util.*;
 public class Controller {
     private View view;
     private Model model;
-
+    private static UserDetails userDetails;
 
     public Controller(View view, Model model) {
         this.view = view;
@@ -26,19 +26,18 @@ public class Controller {
                 // Get username and password from view
                 String username = view.getUsernameField().getText();
                 String password = new String(view.getPasswordField().getPassword());
+                //init user details
+                userDetails = model.getUserDetails(username);
 
                 // Verify login through model
                 if (model.verifyLogin(username, password)) {
                     JOptionPane.showMessageDialog(view, "Login Successful!");
-                    String userRole = model.getUserDetails(username).getRole();
 
-                    switch (userRole.toUpperCase()){
+                    switch (userDetails.getRole().toUpperCase()){
                         case "ADMIN":
-                            JOptionPane.showMessageDialog(view, "You are an administrator!");
                             //new AdminView();
                             break;
                         case "MEMBER":
-                            JOptionPane.showMessageDialog(view, "You are a member!");
                             //closes and disposes of initial login view
                             view.close();
                             List<Musician> musicians = new ArrayList<>();
@@ -64,10 +63,12 @@ public class Controller {
     public void loadTableData(MemberView memberView) {
         DefaultTableModel musiciansData = model.getMusicians();
         memberView.getMusicians().setModel(musiciansData);
-        updateAvailableDates(memberView);
+        ArrayList<ReservationDate> reservationDates = model.initializeReservedDate();
+        updateAvailableDates(memberView, reservationDates);
+
     }
 
-    private static void initializeMemberListeners(MemberView memberView, Band band) {
+    private void initializeMemberListeners(MemberView memberView, Band band) {
         memberView.getConfirmMusician().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -105,6 +106,41 @@ public class Controller {
                 }
             }
         });
+        memberView.getConfirmBothTables().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                boolean isBandValid = band.isValidBand(band.getBandRating(), band.getMusicians());
+                JTable availableDatesTable = memberView.getAvailableDates();
+                int selectedRow = availableDatesTable.getSelectedRow();
+
+                if(!isBandValid){
+                    JOptionPane.showMessageDialog(memberView, "Band is not valid.. Try again");
+                }
+
+                if (selectedRow == -1) {
+                    JOptionPane.showMessageDialog(memberView, "Please select a date.");
+                    return;
+                }
+
+                String dateString = availableDatesTable.getValueAt(selectedRow, 0).toString();
+                String availability = availableDatesTable.getValueAt(selectedRow, 1).toString();
+
+                LocalDate selectedDate = LocalDate.parse(dateString);
+
+                if ("Yes".equalsIgnoreCase(availability)) {
+                    boolean succes = model.insertPendingReservations(userDetails.getId(), selectedDate);
+                    if(succes) {
+                        JOptionPane.showMessageDialog(memberView, "Reservation confirmed");
+                    }else{
+                        JOptionPane.showMessageDialog(memberView, "Reservation failed");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(memberView, "The selected date " + selectedDate + " is already reserved. Please choose another date.");
+                    return;
+                }
+
+            }
+
+        });
 
 
     }
@@ -127,18 +163,22 @@ public class Controller {
         memberView.getUserBand().setModel(bandModel);
     }
 
-    private static void updateAvailableDates(MemberView memberview) {
+    private static void updateAvailableDates(MemberView memberview, ArrayList<ReservationDate> reservationDates) {
         DefaultTableModel dateModel = new DefaultTableModel();
         dateModel.addColumn("Date");
         dateModel.addColumn("Available");
-        DateGenerator dateGenerator = new DateGenerator();
-        ArrayList<LocalDate> dates = dateGenerator.getDates();
-        for (LocalDate date : dates) {
-            dateModel.addRow(new Object[]{
-                    date.toString(), "Not Reserved"
-            });
+
+        for (ReservationDate reservationDate : reservationDates) {
+            Object[] row = {
+                    reservationDate.getReservationDate(),
+                    reservationDate.getReserved() ? "No" : "Yes"
+            };
+            dateModel.addRow(row);
         }
+
         memberview.getAvailableDates().setModel(dateModel);
     }
+
+
 
 }

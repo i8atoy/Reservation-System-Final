@@ -24,12 +24,12 @@ public class Band {
     }
 
     private static boolean isValidBandRating(int bandRating){
-        if(bandRating > bandRatingMin) return false;
+        if(bandRating < bandRatingMin) return false;
         return true;
     }
 
     private static boolean isValidBandNumber(List<Musician> musicians){
-        if(musicians.size() <= bandNumberMax) return false;
+        if(musicians.size() >= bandNumberMax) return false;
         return true;
     }
 

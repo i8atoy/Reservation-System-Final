@@ -14,5 +14,13 @@ public class UserDetails {
     public String getRole() {
         return role;
     }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 }
 
