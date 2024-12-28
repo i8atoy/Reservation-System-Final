@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
@@ -27,7 +28,7 @@ public class MemberView extends JFrame {
     }
 
     private void initializeComponents() {
-        setTitle("Database Selection View");
+        setTitle("Member View");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -42,15 +43,23 @@ public class MemberView extends JFrame {
         JPanel tablesPanel = new JPanel(new GridLayout(1, 3, 10, 0));
         tablesPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        tablesPanel.add(new JScrollPane(musicians));
-        tablesPanel.add(new JScrollPane(userBand));
-        tablesPanel.add(new JScrollPane(availableDates));
+        JScrollPane musiciansScrollPane = new JScrollPane(musicians);
+        JScrollPane userBandScrollPane = new JScrollPane(userBand);
+        JScrollPane availableDatesScrollPane = new JScrollPane(availableDates);
+
+        musiciansScrollPane.setBorder(createTitledBorder("Musicians"));
+        userBandScrollPane.setBorder(createTitledBorder("User Band"));
+        availableDatesScrollPane.setBorder(createTitledBorder("Available Dates"));
+
+        tablesPanel.add(musiciansScrollPane);
+        tablesPanel.add(userBandScrollPane);
+        tablesPanel.add(availableDatesScrollPane);
 
         add(tablesPanel, BorderLayout.CENTER);
 
-        confirmMusician = createStyledButton("Confirm Musician", Color.GREEN);
-        deleteMusician = createStyledButton("Delete Musician", Color.RED);
-        confirm = createStyledButton("Confirm Band and Date", Color.CYAN);
+        confirmMusician = createStyledButton("Confirm Musician", new Color(50, 205, 50));
+        deleteMusician = createStyledButton("Delete Musician", new Color(255, 69, 0));
+        confirm = createStyledButton("Confirm Band and Date", new Color(70, 130, 180));
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -60,9 +69,9 @@ public class MemberView extends JFrame {
 
         add(bottomPanel, BorderLayout.SOUTH);
 
-        seeReservation = createStyledButton("See Reservations", Color.CYAN);
-        myReservations = createStyledButton("My Reservations", Color.CYAN);
-        logout = createStyledButton("Logout", Color.red);
+        seeReservation = createStyledButton("See Reservations", new Color(100, 149, 237));
+        myReservations = createStyledButton("My Reservations", new Color(100, 149, 237));
+        logout = createStyledButton("Logout", new Color(178, 34, 34));
 
         JPanel sidePanel = new JPanel(new GridLayout(3, 1, 10, 10));
         sidePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -71,15 +80,13 @@ public class MemberView extends JFrame {
         sidePanel.add(myReservations);
         sidePanel.add(logout);
 
-        add(sidePanel, BorderLayout.EAST);
-
         JPanel sideWrapper = new JPanel(new BorderLayout());
         sideWrapper.add(sidePanel, BorderLayout.NORTH);
-        sideWrapper.setPreferredSize(new Dimension(150, 0)); // Set fixed width for the side panel
+        sideWrapper.setPreferredSize(new Dimension(200, 0));
 
         add(sideWrapper, BorderLayout.EAST);
 
-        setSize(1000, 600);
+        setSize(1200, 600);
         setLocationRelativeTo(null);
         setVisible(true);
     }
@@ -92,18 +99,37 @@ public class MemberView extends JFrame {
         table.getTableHeader().setForeground(Color.WHITE);
         table.setFont(new Font("SansSerif", Font.PLAIN, 14));
         table.setGridColor(Color.LIGHT_GRAY);
+        table.setShowVerticalLines(false);
+        table.setShowHorizontalLines(true);
+        table.setSelectionBackground(new Color(173, 216, 230));
+        table.setSelectionForeground(Color.BLACK);
         return table;
     }
 
     private JButton createStyledButton(String text, Color color) {
         JButton button = new JButton(text);
         button.setBackground(color);
-        button.setForeground(Color.BLACK);
+        button.setForeground(Color.WHITE);
         button.setFont(new Font("SansSerif", Font.BOLD, 14));
         button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
-        button.setPreferredSize(new Dimension(220, 40));
+        button.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.DARK_GRAY, 1),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
         return button;
+    }
+
+    private TitledBorder createTitledBorder(String title) {
+        TitledBorder border = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(100, 149, 237), 2),
+                title,
+                TitledBorder.LEFT,
+                TitledBorder.TOP,
+                new Font("SansSerif", Font.BOLD, 14),
+                new Color(25, 25, 112)
+        );
+        border.setTitlePosition(TitledBorder.ABOVE_TOP);
+        return border;
     }
 
     public JTable getMusicians() {
@@ -141,7 +167,5 @@ public class MemberView extends JFrame {
     public JButton getLogout() {
         return logout;
     }
-    public static void main(String[] args) {
-        new MemberView();
-    }
+
 }

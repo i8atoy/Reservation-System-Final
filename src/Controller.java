@@ -71,18 +71,25 @@ public class Controller {
     }
 
     private void initializeRegisterListeners(RegisterView registerView) {
-        String username = registerView.getUsernameField().getText();
-        String firstName = registerView.getFirstNameField().getText();
-        String lastName = registerView.getLastNameField().getText();
-        String password = registerView.getPasswordField().getText();
-        String confirmPassword = registerView.getConfirmPasswordField().getText();
+
+
 
         registerView.getRegisterButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                String username = registerView.getUsernameField().getText();
+                String firstName = registerView.getFirstNameField().getText();
+                String lastName = registerView.getLastNameField().getText();
+                String password =  new String(registerView.getPasswordField().getPassword());
+                String confirmPassword = new String(registerView.getConfirmPasswordField().getPassword());
 
                 if(password.equals(confirmPassword)) {
-                    model.register(username, firstName, lastName, password);
-                    JOptionPane.showMessageDialog(registerView, "Registration Successful!");
+                    boolean success = model.register(username, password, firstName, lastName);
+                    if(success) {
+                        JOptionPane.showMessageDialog(registerView, "Registration Successful!");
+                        registerView.dispose();
+                    }else{
+                        JOptionPane.showMessageDialog(registerView, "Registration Failed!");
+                    }
                 }else{
                     JOptionPane.showMessageDialog(registerView, "Passwords do not match");
                 }
@@ -282,6 +289,27 @@ public class Controller {
                 }else{
                     JOptionPane.showMessageDialog(adminView, "Please select a reservation.");
                 }
+            }
+        });
+        adminView.getLogout().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                adminView.dispose();
+                View view = new View();
+                Controller controller = new Controller(view, model);
+            }
+        });
+        adminView.getBandManager().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                MemberView memberView = new MemberView();
+                ArrayList<Musician> musicians = new ArrayList<>();
+                Band band = new Band(musicians);
+                loadTableData(memberView);
+                initializeMemberListeners(memberView, band);
+            }
+        });
+        adminView.getRefresh().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                loadAdminData(adminView);
             }
         });
 
