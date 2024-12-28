@@ -39,11 +39,15 @@ public class Band {
     }
 
     public void addMusician(Musician musician){
-        musicians.add(musician);
+        if(!musicians.contains(musician)) {
+            musicians.add(musician);
+        }
     }
 
     public void deleteMusician(Musician musician){
-        musicians.remove(musician);
+        if(musicians.contains(musician)) {
+            musicians.remove(musician);
+        }
     }
 
     public ArrayList<Musician> getMusicians(){

@@ -4,9 +4,11 @@ public class ReservationDate{
     private LocalDate reservationDate;
     private boolean reserved;
 
+
     public ReservationDate(LocalDate reservationDate, boolean isReserved){
         this.reservationDate = reservationDate;
         this.reserved = isReserved;
+
     }
     public LocalDate getReservationDate(){
         return reservationDate;
@@ -18,4 +20,5 @@ public class ReservationDate{
     public void setReserved(boolean input) {
         reserved = input;
     }
+
 }

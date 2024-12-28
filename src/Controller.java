@@ -35,7 +35,10 @@ public class Controller {
 
                     switch (userDetails.getRole().toUpperCase()){
                         case "ADMIN":
-                            //new AdminView();
+                            view.close();
+                            AdminView adminView = new AdminView();
+                            loadAdminData(adminView);
+                            initializeAdminListeners(adminView);
                             break;
                         case "MEMBER":
                             //closes and disposes of initial login view
@@ -61,7 +64,7 @@ public class Controller {
         });
     }
     public void loadTableData(MemberView memberView) {
-        DefaultTableModel musiciansData = model.getMusicians();
+        DefaultTableModel musiciansData = model.getTableData("SELECT name, instrument, rating FROM musicians");
         memberView.getMusicians().setModel(musiciansData);
         ArrayList<ReservationDate> reservationDates = model.initializeReservedDate();
         updateAvailableDates(memberView, reservationDates);
@@ -127,7 +130,7 @@ public class Controller {
                 LocalDate selectedDate = LocalDate.parse(dateString);
 
                 if ("Yes".equalsIgnoreCase(availability)) {
-                    boolean succes = model.insertPendingReservations(userDetails.getId(), selectedDate, band.getMusicians(), band.getBandRating());
+                    boolean succes = model.insertPendingReservations(userDetails.getId(), selectedDate, band);
                     if(succes) {
                         JOptionPane.showMessageDialog(memberView, "Reservation confirmed");
                         loadTableData(memberView);
@@ -145,7 +148,21 @@ public class Controller {
         memberView.getSeeReservation().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 SeeReservationsView seeReservationsView = new SeeReservationsView();
-                seeReservationsView.getReservationsTable().setModel(model.getReservations());
+                seeReservationsView.getReservationsTable().setModel(model.getTableData("SELECT username, set_date FROM users join reservations on users.id = reservations.user_id WHERE status = 'confirmed'"));
+            }
+        });
+        memberView.getLogout().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                View view = new View();
+                Controller controller = new Controller(view, model);
+                memberView.dispose();
+            }
+        });
+        memberView.getMyReservations().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                MyReservationsView myReservationsView = new MyReservationsView();
+                DefaultTableModel temp = model.loadMyReservation(userDetails.getId());
+                myReservationsView.getMyReservationsTable().setModel(temp);
             }
         });
 
@@ -185,7 +202,61 @@ public class Controller {
 
         memberview.getAvailableDates().setModel(dateModel);
     }
+    private void loadAdminData(AdminView adminView) {
+        //get all users
+        DefaultTableModel membersData = model.getTableData("SELECT username, role FROM users");
+        adminView.getMemberListTable().setModel(membersData);
 
+        //confirmed reservations
+        DefaultTableModel confirmedReservationsData = model.getTableData("SELECT username, set_date FROM users join reservations on users.id = reservations.user_id where status = 'confirmed'");
+        adminView.getConfirmedReservationsTable().setModel(confirmedReservationsData);
+
+        //pending
+        DefaultTableModel pendingReservationsData = model.getTableData("SELECT user_id, username, set_date, musicians, band_rating FROM users join reservations on users.id = reservations.user_id where status = 'pending'");
+        adminView.getPendingReservationsTable().setModel(pendingReservationsData);
+    }
+    private void initializeAdminListeners(AdminView adminView) {
+        adminView.getConfirm().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selected_row = adminView.getPendingReservationsTable().getSelectedRow();
+                if (selected_row != -1) {
+                    int user_id = (int) adminView.getPendingReservationsTable().getValueAt(selected_row, 0);
+                    java.sql.Date SQLdate = (java.sql.Date) adminView.getPendingReservationsTable().getValueAt(selected_row, 2);
+                    LocalDate date = SQLdate.toLocalDate();
+                    boolean success = model.confirmReservation(user_id, date);
+                    if(success) {
+                        JOptionPane.showMessageDialog(adminView, "Reservation confirmed");
+                        loadAdminData(adminView);
+                    }else{
+                        JOptionPane.showMessageDialog(adminView, "Reservation confirmation failed");
+                    }
+                }else{
+                    JOptionPane.showMessageDialog(adminView, "Please select a reservation.");
+                }
+            }
+        });
+        adminView.getDeny().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int selected_row = adminView.getPendingReservationsTable().getSelectedRow();
+                if (selected_row != -1) {
+                    int user_id = (int) adminView.getPendingReservationsTable().getValueAt(selected_row, 0);
+                    java.sql.Date SQLdate = (java.sql.Date) adminView.getPendingReservationsTable().getValueAt(selected_row, 2);
+                    LocalDate date = SQLdate.toLocalDate();
+                    boolean success = model.rejectReservation(user_id, date);
+                    if(success) {
+                        JOptionPane.showMessageDialog(adminView, "Reservation rejected");
+                        loadAdminData(adminView);
+                    }else{
+                        JOptionPane.showMessageDialog(adminView, "Reservation rejection failed");
+                    }
+                }else{
+                    JOptionPane.showMessageDialog(adminView, "Please select a reservation.");
+                }
+            }
+        });
+
+    }
 
 
 }

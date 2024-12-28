@@ -49,19 +49,23 @@ public class Model {
     }
 
     public ArrayList<ReservationDate> initializeReservedDate(){
-        String sql = "Select set_date from reservations where set_date = ? ";
+        String sql = "Select set_date, status from reservations where set_date = ? ";
         DateGenerator dateGenerator = new DateGenerator();
         ArrayList<LocalDate> dates = dateGenerator.getDates();
         ArrayList<ReservationDate> reservationDates = new ArrayList<>();
 
         for (LocalDate date : dates) {
             boolean isReserved = false;
+            String status = "pending";
             try(PreparedStatement pstmt = connection.prepareStatement(sql)){
                 pstmt.setDate(1, java.sql.Date.valueOf(date));
 
                 ResultSet rs = pstmt.executeQuery();
                 if(rs.next()){
-                    isReserved = true;
+                    status = rs.getString("status");
+
+                    isReserved = "confirmed".equalsIgnoreCase(status);
+
                 }
 
                 reservationDates.add(new ReservationDate(date, isReserved));
@@ -91,8 +95,8 @@ public class Model {
         }
     }
 
-    public DefaultTableModel getMusicians(){
-        String sql = "SELECT name, instrument, rating FROM musicians";
+    public DefaultTableModel getTableData(String query) {
+        String sql = query;
         DefaultTableModel model = new DefaultTableModel();
         try {
             Statement stmt = connection.createStatement();
@@ -119,19 +123,20 @@ public class Model {
         return model;
     }
 
-    public boolean insertPendingReservations(int user_id, LocalDate pending_date, ArrayList<Musician> musicians, int rating) {
-        String sql = "INSERT INTO pending_reservations (user_id, pending_date, band_members, band_rating) values (?, ?, ?, ?)";
-        boolean success = false;
 
+    public boolean insertPendingReservations(int user_id, LocalDate reservation_date, Band band) {
+        String sql = "INSERT INTO reservations (user_id, set_date, musicians, band_rating) VALUES (?, ?, ?, ?)";
+        boolean success = false;
+        //status is by default pending
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, user_id);
-            pstmt.setDate(2, java.sql.Date.valueOf(pending_date));
-            String allMusicians = "";
-            for(Musician m : musicians){
-                allMusicians = allMusicians + m.getName() + ", ";
+            pstmt.setDate(2, java.sql.Date.valueOf(reservation_date));
+            String musicians = "";
+            for(int i = 0; i < band.getMusicians().size(); i++){
+                musicians += band.getMusicians().get(i).getName() + ", ";
             }
-            pstmt.setString(3, allMusicians);
-            pstmt.setInt(4, rating);
+            pstmt.setString(3, musicians);
+            pstmt.setInt(4, band.getBandRating());
 
             int rowsAffected = pstmt.executeUpdate();
 
@@ -139,42 +144,75 @@ public class Model {
                 success = true;
             }
 
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
 
         }
         return success;
     }
-    public DefaultTableModel getReservations(){
-        String sql = "SELECT username, set_date FROM users join reservations on users.id = reservations.user_id";
-        DefaultTableModel model = new DefaultTableModel();
-        try {
-            Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
 
-            ResultSetMetaData metaData = rs.getMetaData();
-            int columnCount = metaData.getColumnCount();
+    public boolean confirmReservation(int user_id, LocalDate set_date) {
+        String sql = "UPDATE reservations SET status = 'confirmed' WHERE user_id = ? AND set_date = ?";
+        boolean success = false;
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, user_id);
+            pstmt.setDate(2, java.sql.Date.valueOf(set_date));
 
-            for (int i = 1; i <= columnCount; i++) {
-                model.addColumn(metaData.getColumnName(i));
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                success = true;
             }
 
-            while (rs.next()) {
-                Object[] row = new Object[columnCount];
-                for (int i = 1; i <= columnCount; i++) {
-                    row[i - 1] = rs.getObject(i);
-                }
-                model.addRow(row);
-            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
+
         }
-        return model;
+        return success;
     }
 
+    public boolean rejectReservation(int user_id, LocalDate set_date) {
+        String sql = "UPDATE reservations SET status = 'rejected' WHERE user_id = ? AND set_date = ?";
+        boolean success = false;
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, user_id);
+            pstmt.setDate(2, java.sql.Date.valueOf(set_date));
 
+            int rowsAffected = pstmt.executeUpdate();
 
+            if (rowsAffected > 0) {
+                success = true;
+            }
 
+        } catch (SQLException e) {
+            e.printStackTrace();
 
+        }
+        return success;
+    }
+
+    public DefaultTableModel loadMyReservation(int id) {
+        String sql = "SELECT set_date, status, musicians, band_rating FROM reservations WHERE user_id = ?";
+        DefaultTableModel model = new DefaultTableModel(new String[]{"Set Date", "Status", "Musicians", "Band Rating"}, 0);
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String setDate = rs.getString("set_date");
+                    String status = rs.getString("status");
+                    String musicians = rs.getString("musicians");
+                    String bandRating = rs.getString("band_rating");
+
+                    model.addRow(new Object[]{setDate, status, musicians, bandRating});
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return model;
+    }
 }

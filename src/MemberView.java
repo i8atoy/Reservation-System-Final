@@ -10,6 +10,8 @@ public class MemberView extends JFrame {
     private JButton confirm;
     private JButton deleteMusician;
     private JButton seeReservation;
+    private JButton myReservations;
+    private JButton logout;
 
     public MemberView() {
         initializeLookAndFeel();
@@ -26,7 +28,7 @@ public class MemberView extends JFrame {
 
     private void initializeComponents() {
         setTitle("Database Selection View");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
         DefaultTableModel firstModel = new DefaultTableModel();
@@ -44,21 +46,38 @@ public class MemberView extends JFrame {
         tablesPanel.add(new JScrollPane(userBand));
         tablesPanel.add(new JScrollPane(availableDates));
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        add(tablesPanel, BorderLayout.CENTER);
 
         confirmMusician = createStyledButton("Confirm Musician", Color.GREEN);
         deleteMusician = createStyledButton("Delete Musician", Color.RED);
         confirm = createStyledButton("Confirm Band and Date", Color.CYAN);
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        bottomPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        bottomPanel.add(confirmMusician);
+        bottomPanel.add(deleteMusician);
+        bottomPanel.add(confirm);
+
+        add(bottomPanel, BorderLayout.SOUTH);
+
         seeReservation = createStyledButton("See Reservations", Color.CYAN);
+        myReservations = createStyledButton("My Reservations", Color.CYAN);
+        logout = createStyledButton("Logout", Color.red);
 
-        buttonPanel.add(confirmMusician);
-        buttonPanel.add(deleteMusician);
-        buttonPanel.add(confirm);
-        buttonPanel.add(seeReservation);
+        JPanel sidePanel = new JPanel(new GridLayout(3, 1, 10, 10));
+        sidePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        add(tablesPanel, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
+        sidePanel.add(seeReservation);
+        sidePanel.add(myReservations);
+        sidePanel.add(logout);
+
+        add(sidePanel, BorderLayout.EAST);
+
+        JPanel sideWrapper = new JPanel(new BorderLayout());
+        sideWrapper.add(sidePanel, BorderLayout.NORTH);
+        sideWrapper.setPreferredSize(new Dimension(150, 0)); // Set fixed width for the side panel
+
+        add(sideWrapper, BorderLayout.EAST);
 
         setSize(1000, 600);
         setLocationRelativeTo(null);
@@ -113,5 +132,16 @@ public class MemberView extends JFrame {
 
     public JButton getSeeReservation() {
         return seeReservation;
+    }
+
+    public JButton getMyReservations() {
+        return myReservations;
+    }
+
+    public JButton getLogout() {
+        return logout;
+    }
+    public static void main(String[] args) {
+        new MemberView();
     }
 }
