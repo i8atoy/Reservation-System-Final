@@ -62,7 +62,36 @@ public class Controller {
                 }
             }
         });
+        view.getRegisterButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                RegisterView registerView = new RegisterView();
+                initializeRegisterListeners(registerView);
+            }
+        });
     }
+
+    private void initializeRegisterListeners(RegisterView registerView) {
+        String username = registerView.getUsernameField().getText();
+        String firstName = registerView.getFirstNameField().getText();
+        String lastName = registerView.getLastNameField().getText();
+        String password = registerView.getPasswordField().getText();
+        String confirmPassword = registerView.getConfirmPasswordField().getText();
+
+        registerView.getRegisterButton().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+
+                if(password.equals(confirmPassword)) {
+                    model.register(username, firstName, lastName, password);
+                    JOptionPane.showMessageDialog(registerView, "Registration Successful!");
+                }else{
+                    JOptionPane.showMessageDialog(registerView, "Passwords do not match");
+                }
+            }
+
+
+        });
+    }
+
     public void loadTableData(MemberView memberView) {
         DefaultTableModel musiciansData = model.getTableData("SELECT name, instrument, rating FROM musicians");
         memberView.getMusicians().setModel(musiciansData);

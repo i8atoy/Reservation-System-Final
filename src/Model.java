@@ -25,6 +25,51 @@ public class Model {
         }
     }
 
+    public boolean register(String username, String password, String firstName, String lastName) {
+        String usersSql = "INSERT INTO users (username, first_name, last_name, role) VALUES (?, ?, ?, 'Member')";
+        String authSql = "INSERT INTO user_auth (username, password) VALUES (?, ?)";
+
+        PasswordAuthentication passwordAuthentication = new PasswordAuthentication();
+
+        String hashedPassword = passwordAuthentication.hash(password.toCharArray());
+
+        try {
+            connection.setAutoCommit(false);
+
+            try (PreparedStatement usersStmt = connection.prepareStatement(usersSql)) {
+                usersStmt.setString(1, username);
+                usersStmt.setString(2, firstName);
+                usersStmt.setString(3, lastName);
+                usersStmt.executeUpdate();
+            }
+
+            try (PreparedStatement authStmt = connection.prepareStatement(authSql)) {
+                authStmt.setString(1, username);
+                authStmt.setString(2, hashedPassword); // Consider hashing the password before storing
+                authStmt.executeUpdate();
+            }
+
+            connection.commit();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            return false;
+        } finally {
+            try {
+
+                connection.setAutoCommit(true);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+
     public boolean verifyLogin(String username, String password) {
         String sql = "SELECT password " +
                 "FROM user_auth " +
