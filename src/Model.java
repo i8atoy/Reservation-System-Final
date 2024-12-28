@@ -196,11 +196,11 @@ public class Model {
         return success;
     }
 
-    public boolean confirmReservation(int user_id, LocalDate set_date) {
-        String sql = "UPDATE reservations SET status = 'confirmed' WHERE user_id = ? AND set_date = ?";
+    public boolean confirmReservation(int reservation_id, LocalDate set_date) {
+        String sql = "UPDATE reservations SET status = 'confirmed' WHERE id = ? AND set_date = ?";
         boolean success = false;
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, user_id);
+            pstmt.setInt(1, reservation_id);
             pstmt.setDate(2, java.sql.Date.valueOf(set_date));
 
             int rowsAffected = pstmt.executeUpdate();
@@ -216,11 +216,11 @@ public class Model {
         return success;
     }
 
-    public boolean rejectReservation(int user_id, LocalDate set_date) {
-        String sql = "UPDATE reservations SET status = 'rejected' WHERE user_id = ? AND set_date = ?";
+    public boolean rejectReservation(int reservation_id, LocalDate set_date) {
+        String sql = "UPDATE reservations SET status = 'rejected' WHERE id = ? AND set_date = ?";
         boolean success = false;
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setInt(1, user_id);
+            pstmt.setInt(1, reservation_id);
             pstmt.setDate(2, java.sql.Date.valueOf(set_date));
 
             int rowsAffected = pstmt.executeUpdate();

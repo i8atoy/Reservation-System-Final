@@ -248,7 +248,7 @@ public class Controller {
         adminView.getConfirmedReservationsTable().setModel(confirmedReservationsData);
 
         //pending
-        DefaultTableModel pendingReservationsData = model.getTableData("SELECT user_id, username, set_date, musicians, band_rating FROM users join reservations on users.id = reservations.user_id where status = 'pending'");
+        DefaultTableModel pendingReservationsData = model.getTableData("SELECT reservations.id, username, set_date, musicians, band_rating FROM users join reservations on users.id = reservations.user_id where status = 'pending'");
         adminView.getPendingReservationsTable().setModel(pendingReservationsData);
     }
     private void initializeAdminListeners(AdminView adminView) {
@@ -257,10 +257,10 @@ public class Controller {
             public void actionPerformed(ActionEvent e) {
                 int selected_row = adminView.getPendingReservationsTable().getSelectedRow();
                 if (selected_row != -1) {
-                    int user_id = (int) adminView.getPendingReservationsTable().getValueAt(selected_row, 0);
+                    int reservation_id = (int) adminView.getPendingReservationsTable().getValueAt(selected_row, 0);
                     java.sql.Date SQLdate = (java.sql.Date) adminView.getPendingReservationsTable().getValueAt(selected_row, 2);
                     LocalDate date = SQLdate.toLocalDate();
-                    boolean success = model.confirmReservation(user_id, date);
+                    boolean success = model.confirmReservation(reservation_id, date);
                     if(success) {
                         JOptionPane.showMessageDialog(adminView, "Reservation confirmed");
                         loadAdminData(adminView);
