@@ -7,7 +7,7 @@ public class DateGenerator {
 
     public DateGenerator() {
         LocalDate today = LocalDate.now();
-        numberOfDays = 365 - today.getDayOfYear();
+        numberOfDays = 366 - today.getDayOfYear();
         dates = new ArrayList<>(numberOfDays);
 
         for (int i = 0; i < numberOfDays; i++) {
@@ -19,4 +19,5 @@ public class DateGenerator {
     public ArrayList<LocalDate> getDates() {
         return dates;
     }
+
 }

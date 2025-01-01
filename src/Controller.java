@@ -184,7 +184,8 @@ public class Controller {
         memberView.getSeeReservation().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 SeeReservationsView seeReservationsView = new SeeReservationsView();
-                seeReservationsView.getReservationsTable().setModel(model.getTableData("SELECT username, set_date FROM users join reservations on users.id = reservations.user_id WHERE status = 'confirmed'"));
+                LocalDate today = LocalDate.now();
+                seeReservationsView.getReservationsTable().setModel(model.loadReservations(today, ">="));
             }
         });
         memberView.getLogout().addActionListener(new ActionListener() {
@@ -244,12 +245,17 @@ public class Controller {
         adminView.getMemberListTable().setModel(membersData);
 
         //confirmed reservations
-        DefaultTableModel confirmedReservationsData = model.getTableData("SELECT username, set_date FROM users join reservations on users.id = reservations.user_id where status = 'confirmed'");
+        LocalDate today = LocalDate.now();
+        DefaultTableModel confirmedReservationsData = model.loadReservations(today, ">=");
         adminView.getConfirmedReservationsTable().setModel(confirmedReservationsData);
 
         //pending
         DefaultTableModel pendingReservationsData = model.getTableData("SELECT reservations.id, username, set_date, musicians, band_rating FROM users join reservations on users.id = reservations.user_id where status = 'pending'");
         adminView.getPendingReservationsTable().setModel(pendingReservationsData);
+
+        //past
+        DefaultTableModel pastReservationsData = model.loadReservations(today, "<");
+        adminView.getPastReservationsTable().setModel(pastReservationsData);
     }
     private void initializeAdminListeners(AdminView adminView) {
         adminView.getConfirm().addActionListener(new ActionListener() {
@@ -310,6 +316,24 @@ public class Controller {
         adminView.getRefresh().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 loadAdminData(adminView);
+            }
+        });
+        adminView.getDelete().addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int selected_row = adminView.getConfirmedReservationsTable().getSelectedRow();
+                if (selected_row != -1) {
+                    java.sql.Date date = (java.sql.Date) adminView.getConfirmedReservationsTable().getValueAt(selected_row, 1);
+
+                    boolean succes = model.deleteReservation(date.toLocalDate());
+                    if(succes) {
+                        JOptionPane.showMessageDialog(adminView, "Reservation deleted");
+                        loadAdminData(adminView);
+                    }else{
+                        JOptionPane.showMessageDialog(adminView, "Reservation deletion failed");
+                    }
+                }else{
+                    JOptionPane.showMessageDialog(adminView, "Select a reservation");
+                }
             }
         });
 

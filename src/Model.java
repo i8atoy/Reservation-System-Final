@@ -93,7 +93,7 @@ public class Model {
         }
     }
 
-    public ArrayList<ReservationDate> initializeReservedDate(){
+    public ArrayList<ReservationDate> initializeReservedDate() {
         String sql = "Select set_date, status from reservations where set_date = ? ";
         DateGenerator dateGenerator = new DateGenerator();
         ArrayList<LocalDate> dates = dateGenerator.getDates();
@@ -102,11 +102,11 @@ public class Model {
         for (LocalDate date : dates) {
             boolean isReserved = false;
             String status = "pending";
-            try(PreparedStatement pstmt = connection.prepareStatement(sql)){
+            try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
                 pstmt.setDate(1, java.sql.Date.valueOf(date));
 
                 ResultSet rs = pstmt.executeQuery();
-                if(rs.next()){
+                if (rs.next()) {
                     status = rs.getString("status");
 
                     isReserved = "confirmed".equalsIgnoreCase(status);
@@ -177,7 +177,7 @@ public class Model {
             pstmt.setInt(1, user_id);
             pstmt.setDate(2, java.sql.Date.valueOf(reservation_date));
             String musicians = "";
-            for(int i = 0; i < band.getMusicians().size(); i++){
+            for (int i = 0; i < band.getMusicians().size(); i++) {
                 musicians += band.getMusicians().get(i).getName() + ", ";
             }
             pstmt.setString(3, musicians);
@@ -260,4 +260,47 @@ public class Model {
 
         return model;
     }
+
+    public DefaultTableModel loadReservations(LocalDate currentDate, String compare) {
+        String sql = "SELECT username, set_date FROM users join reservations on users.id = reservations.user_id where status = 'confirmed' and set_date " + compare + "?";
+        DefaultTableModel model = new DefaultTableModel(new String[]{"Username", "Reservation Date"}, 0);
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setDate(1, Date.valueOf(currentDate));
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String setString = rs.getString("Username");
+                    java.util.Date setDate = rs.getDate("set_date");
+
+                    model.addRow(new Object[]{setString, setDate});
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return model;
+    }
+
+    public boolean deleteReservation(LocalDate set_date) {
+        String sql = "DELETE from reservations where set_date = ?";
+        boolean success = false;
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setDate(1, java.sql.Date.valueOf(set_date));
+
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                success = true;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        }
+        return success;
+    }
+
 }

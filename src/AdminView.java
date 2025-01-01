@@ -12,6 +12,8 @@ public class AdminView extends JFrame {
     private JButton logout;
     private JButton bandManager;
     private JButton refresh;
+    private JTable pastReservations;
+    private JButton delete;
 
     public AdminView() {
         initializeLookAndFeel();
@@ -40,7 +42,6 @@ public class AdminView extends JFrame {
         logout = createStyledButton("Logout", Color.red);
         refresh = createStyledButton("Refresh", new Color(100, 149, 237));
 
-
         JPanel leftPanel = new JPanel(new BorderLayout(10, 10));
         leftPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         leftPanel.add(listScrollPane, BorderLayout.CENTER);
@@ -52,25 +53,34 @@ public class AdminView extends JFrame {
         topScrollPane.setBorder(createTitledBorder("Pending Reservations"));
 
         confirmedReservationsTable = createStyledTable(new DefaultTableModel());
-        JScrollPane bottomScrollPane = new JScrollPane(confirmedReservationsTable);
-        bottomScrollPane.setBorder(createTitledBorder("Confirmed Reservations"));
+        JScrollPane middleScrollPane = new JScrollPane(confirmedReservationsTable);
+        middleScrollPane.setBorder(createTitledBorder("Confirmed Reservations"));
 
-        JSplitPane verticalSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, topScrollPane, bottomScrollPane);
-        verticalSplit.setResizeWeight(0.6);
+        pastReservations = createStyledTable(new DefaultTableModel());
+        JScrollPane bottomScrollPane = new JScrollPane(pastReservations);
+        bottomScrollPane.setBorder(createTitledBorder("Past Reservations"));
+
+        JPanel tablesPanel = new JPanel();
+        tablesPanel.setLayout(new BoxLayout(tablesPanel, BoxLayout.Y_AXIS));
+        tablesPanel.add(topScrollPane);
+        tablesPanel.add(middleScrollPane);
+        tablesPanel.add(bottomScrollPane);
 
         confirm = createStyledButton("Confirm Reservation", new Color(50, 205, 50));
         deny = createStyledButton("Deny Reservation", new Color(255, 69, 0));
         bandManager = createStyledButton("Band Manager", new Color(100, 149, 237));
+        delete = createStyledButton("Delete Reservation", new Color(255, 69, 0));
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         buttonPanel.add(confirm);
         buttonPanel.add(deny);
         buttonPanel.add(bandManager);
+        buttonPanel.add(delete);
 
         JPanel rightPanel = new JPanel(new BorderLayout(10, 10));
         rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        rightPanel.add(verticalSplit, BorderLayout.CENTER);
+        rightPanel.add(tablesPanel, BorderLayout.CENTER);
         rightPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
@@ -100,7 +110,7 @@ public class AdminView extends JFrame {
         button.setFont(new Font("SansSerif", Font.BOLD, 14));
         button.setFocusPainted(false);
         button.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
-        button.setPreferredSize(new Dimension(200, 40));
+        button.setPreferredSize(new Dimension(180, 40));
         return button;
     }
 
@@ -136,14 +146,24 @@ public class AdminView extends JFrame {
     public JTable getConfirmedReservationsTable() {
         return confirmedReservationsTable;
     }
+
+    public JTable getPastReservationsTable() {
+        return pastReservations;
+    }
+
     public JButton getLogout() {
         return logout;
     }
+
     public JButton getBandManager() {
         return bandManager;
     }
+
     public JButton getRefresh() {
         return refresh;
+    }
+    public JButton getDelete() {
+        return delete;
     }
 
 }
