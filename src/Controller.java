@@ -185,7 +185,7 @@ public class Controller {
             public void actionPerformed(ActionEvent e) {
                 SeeReservationsView seeReservationsView = new SeeReservationsView();
                 LocalDate today = LocalDate.now();
-                seeReservationsView.getReservationsTable().setModel(model.loadReservations(today, ">="));
+                seeReservationsView.getReservationsTable().setModel(model.loadSeeReservations(today, ">="));
             }
         });
         memberView.getLogout().addActionListener(new ActionListener() {

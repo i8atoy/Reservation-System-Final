@@ -303,4 +303,27 @@ public class Model {
         return success;
     }
 
+    public DefaultTableModel loadSeeReservations(LocalDate currentDate, String compare) {
+        String sql = "SELECT musicians, set_date FROM users join reservations on users.id = reservations.user_id where status = 'confirmed' and set_date " + compare + "?";
+        DefaultTableModel model = new DefaultTableModel(new String[]{"Musicians", "Reservation Date"}, 0);
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setDate(1, Date.valueOf(currentDate));
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String setString = rs.getString("musicians");
+                    java.util.Date setDate = rs.getDate("set_date");
+
+                    model.addRow(new Object[]{setString, setDate});
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return model;
+    }
+
 }
